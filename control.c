@@ -17,7 +17,7 @@ int main (int argc, char *argv[])
 	if(strcmp(argv[1], "c") == 0)
 	{
 		//create shared memory segment
-		int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT);
+		int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT | 0644);
 		if(shmd == -1) printf("Shared Memory Error: %s\n", strerror(errno));
 
 		//create semaphore
