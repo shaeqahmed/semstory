@@ -25,14 +25,14 @@ int main () {
 	int storyFD = open("story.txt", O_TRUNC | O_RDONLY);
 	int totalFD = open("totalStory.txt", O_APPEND | O_RDONLY);
 
-	int semd = semget(ftok("story.txt", 100), 1, IPC_CREAT | 0644);
+	int semd = semget(ftok("story.txt", 100), 1, IPC_EXCL | 0644);
 	union semun valSetter;
 	valSetter.val = 0;
 	int res = semctl(semd, 0, SETVAL, valSetter);
 	if(res == -1) printf("Semaphore Value Setting Error: %s\n", strerror(errno));
 
 	////2////
-	int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT | 0644);
+	int shmd = shmget(ftok("story.txt", 100), 4, IPC_EXCL | 0644);
 	int* p = 0;
 	shmat(shmd, &p, 0644);
 	p = (int *) p;
