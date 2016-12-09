@@ -9,13 +9,19 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 
+#define MAXSTORYSIZE 3000
+
 int main (int argc, char *argv[]) 
 {
 	//argc is assumed to be 1
 	//argv[0] assumed to be 'c' or 'r'
-
-	if(strcmp(argv[1], "c") == 0)
+	if(strcmp(argv[1], "-c") == 0)
 	{
+		////////////make the text file////////////
+		int fd = open("story.txt", O_CREAT, 0664); //contains only the last line
+		printf("made file\n");
+		close(fd);
+
 		//create shared memory segment
 		int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT | 0664);
 		if(shmd == -1) printf("Shared Memory Error: %s\n", strerror(errno));
@@ -33,19 +39,19 @@ int main (int argc, char *argv[])
 		int newVal = semctl(semd, 0, GETVAL);
 		printf("value of semaphore set to %d\n", newVal);
 		if(newVal == -1) printf("Semaphore Value Getting Error: %s\n", strerror(errno));
-
-		////////////make the text files////////////
-		int totalFd = open("totalStory.txt", O_CREAT, 0664); //contains the entire story so far
-		int fd = open("story.txt", O_CREAT, 0664); //contains only the last line
-
-		printf("made files\n");
-
-		close(totalFd);
-		close(fd);
 	}
-	else //argv[0] is 'r'
+	else if(strcmp(argv[1], "-v") == 0)
 	{
-
+		//printf("0\n");
+		char* storyBuffer = (char *) calloc(1, MAXSTORYSIZE);
+		int fd = open("story.txt", O_RDONLY);
+		if(fd == -1) printf("Opening Error: %s\n", strerror(errno));
+		int readRes = read(fd, storyBuffer, MAXSTORYSIZE);
+		if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
+		int closeRes = close(fd);
+		if(closeRes == -1) printf("Closing Error: %s\n", strerror(errno));
+		//printf("length of story: %d\n", strlen(storyBuffer));
+		printf("%s", storyBuffer);
 	}
 
 

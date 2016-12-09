@@ -48,7 +48,8 @@ int main () {
 	char* lineBuffer = (char*) calloc(1, lineSize + 1);
 	int readRes = read(storyFD, lineBuffer, lineSize); if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
 	*(lineBuffer + lineSize) = 0;
-	printf("Previously Added Line: %s", lineBuffer);
+	if(strlen(lineBuffer)) printf("Previously Added Line: %s", lineBuffer);
+	else printf("\n");
 	//printf("Previously Added Line Size: %d\n", lineSize);
 	free(lineBuffer);
 	currentPos = lseek(storyFD, 0, SEEK_END); if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
