@@ -14,18 +14,18 @@ int main () {
 	/*
 	1. Open files, set semaphore to 0
 	2. Open shared memory segment, get line size
-	3. Open story.txt, read the line into a char* which has the size from the shm segment. Print it 
+	3. Use lseek on story.txt, read the line into a char* which has the size from the shm segment. Print it 
 	4. Read line from input into a char*.
 	5. Set story.txt to truncate already, so write the new line to story.txt. Append the new line to totalStory.txt
 	6. Close files, set semaphore to 1, detach from shared memory
 	*/
 
 	////////////////1////////////////
-	int storyFD = open("story.txt", O_TRUNC | O_RDONLY);
-	int totalFD = open("totalStory.txt", O_APPEND | O_RDONLY);
+	int storyFD = open("story.txt", O_RDWR | O_APPEND);
 
 	int semd = semget(ftok("story.txt", 100), 1, 0664);
 	if(semd == -1) printf("Semaphore Access Error: %s\n", strerror(errno));
+
 	union semun valSetter;
 	valSetter.val = 0;
 	int res = semctl(semd, 0, SETVAL, valSetter);
@@ -34,40 +34,44 @@ int main () {
 	////////////////2////////////////
 	int shmd = shmget(ftok("story.txt", 100), 4, 0664);
 	if(shmd == -1) printf("Shared Memory Access Error: %s\n", strerror(errno));
-	void* p = NULL;
-	void* shmatResult = shmat(shmd, &p, 0664);
-	if((long) shmatResult == -1) printf("Attaching to Shared Memory Error: %s\n", strerror(errno));
-	int* loc = (int *) p;
 
-	int lineSize = *loc;
-	
+	int *p;
+	p = (int*) shmat(shmd, 0, 0);
+	if((int) p == -1) printf("Attaching to Shared Memory Error: %s\n", strerror(errno));
+
+	int lineSize = *p;
+
 	////////////////3////////////////
+	int currentPos = lseek(storyFD, -1 * lineSize, SEEK_END);
+	if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
+
 	char* lineBuffer = (char*) calloc(1, lineSize + 1);
-	read(storyFD, lineBuffer, lineSize);
-	*(lineBuffer + lineSize) = 0; //lineBuffer[lineSize] = NULL;
+	int readRes = read(storyFD, lineBuffer, lineSize); if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
+	*(lineBuffer + lineSize) = 0;
 	printf("Previously Added Line: %s\n", lineBuffer);
+	printf("Previously Added Line Size: %d\n", lineSize);
 	free(lineBuffer);
+	currentPos = lseek(storyFD, 0, SEEK_END); if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
 
 	////////////////4////////////////
 	char* nextLine = (char*) calloc(1, 50);
 	printf("Enter next line of story (at most 49 characters) > ");
 	fgets(nextLine, 50, stdin);
+	printf("adding the line: %s\n", nextLine);
 
 	////////////////5////////////////
-	write(storyFD, nextLine, strlen(nextLine));
-	write(totalFD, nextLine, strlen(nextLine));
-	//append nextLine to totalStory.txt and story.txt (including the new line)
+	int wrResult = write(storyFD, nextLine, strlen(nextLine)); if(wrResult == -1) printf("Writing to story.txt error: %s\n", strerror(errno));
+	*p = strlen(nextLine);
 	free(nextLine);
 
 	////////////////6////////////////
 	close(storyFD);
-	close(totalFD);
 	shmdt(p);
+
 	//set value of semaphore
 	valSetter.val = 1;
 	res = semctl(semd, 0, SETVAL, valSetter);
 	if(res == -1) printf("Semaphore Value Setting Error: %s\n", strerror(errno));
-
 
 	return 0;
 
