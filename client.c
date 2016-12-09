@@ -49,7 +49,7 @@ int main () {
 	int readRes = read(storyFD, lineBuffer, lineSize); if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
 	*(lineBuffer + lineSize) = 0;
 	if(strlen(lineBuffer)) printf("Previously Added Line: %s", lineBuffer);
-	else printf("\n");
+	else printf("Story Being Created\n");
 	//printf("Previously Added Line Size: %d\n", lineSize);
 	free(lineBuffer);
 	currentPos = lseek(storyFD, 0, SEEK_END); if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
