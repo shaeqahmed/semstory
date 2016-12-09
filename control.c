@@ -17,11 +17,11 @@ int main (int argc, char *argv[])
 	if(strcmp(argv[1], "c") == 0)
 	{
 		//create shared memory segment
-		int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT | 0644);
+		int shmd = shmget(ftok("story.txt", 100), 4, IPC_CREAT | 0664);
 		if(shmd == -1) printf("Shared Memory Error: %s\n", strerror(errno));
 
 		//create semaphore
-		int semd = semget(ftok("story.txt", 100), 1, IPC_CREAT | 0644);
+		int semd = semget(ftok("story.txt", 100), 1, IPC_CREAT | 0664);
 		if(semd == -1) printf("Semaphore Creation Error: %s\n", strerror(errno));
 
 		union semun valSetter;
@@ -35,8 +35,8 @@ int main (int argc, char *argv[])
 		if(newVal == -1) printf("Semaphore Value Getting Error: %s\n", strerror(errno));
 
 		////////////make the text files////////////
-		int totalFd = open("totalStory.txt", O_CREAT, 0666); //contains the entire story so far
-		int fd = open("story.txt", O_CREAT, 0666); //contains only the last line
+		int totalFd = open("totalStory.txt", O_CREAT, 0664); //contains the entire story so far
+		int fd = open("story.txt", O_CREAT, 0664); //contains only the last line
 
 		printf("made files\n");
 
