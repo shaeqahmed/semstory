@@ -48,16 +48,16 @@ int main () {
 	char* lineBuffer = (char*) calloc(1, lineSize + 1);
 	int readRes = read(storyFD, lineBuffer, lineSize); if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
 	*(lineBuffer + lineSize) = 0;
-	printf("Previously Added Line: %s\n", lineBuffer);
-	printf("Previously Added Line Size: %d\n", lineSize);
+	printf("Previously Added Line: %s", lineBuffer);
+	//printf("Previously Added Line Size: %d\n", lineSize);
 	free(lineBuffer);
 	currentPos = lseek(storyFD, 0, SEEK_END); if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
 
 	////////////////4////////////////
-	char* nextLine = (char*) calloc(1, 50);
+	char* nextLine = (char*) calloc(1, 52);
 	printf("Enter next line of story (at most 49 characters) > ");
-	fgets(nextLine, 50, stdin);
-	printf("adding the line: %s\n", nextLine);
+	fgets(nextLine, 51, stdin);
+	//printf("adding the line: %s", nextLine);
 
 	////////////////5////////////////
 	int wrResult = write(storyFD, nextLine, strlen(nextLine)); if(wrResult == -1) printf("Writing to story.txt error: %s\n", strerror(errno));
