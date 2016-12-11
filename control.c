@@ -11,6 +11,14 @@
 
 #define MAXSTORYSIZE 3000
 
+union semun {
+               int              val;    /* Value for SETVAL */
+               struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+               unsigned short  *array;  /* Array for GETALL, SETALL */
+               struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                                           (Linux-specific) */
+           };
+
 int main (int argc, char *argv[]) 
 {
 	//argc is assumed to be 1
@@ -53,6 +61,22 @@ int main (int argc, char *argv[])
 		//printf("length of story: %d\n", strlen(storyBuffer));
 		printf("%s", storyBuffer);
 	}
-
-
+	else if(strcmp(argv[1], "-r") == 0)
+	{
+		//remove shared mem and semctl
+		int shmd = shmget(ftok("story.txt", 100), 4, 0664);
+		int semd = semget(ftok("story.txt", 100), 1, 0664);
+		if 	(shmctl(shmd, IPC_RMID, 0) == -1) printf("Shared Memory Removal Error: %s\n", strerror(errno));
+    	if 	(semctl(semd, 0, IPC_RMID) == -1) printf("Semaphore Removal Error: %s\n", strerror(errno)); 
+    	//printf("0\n");
+		char* storyBuffer = (char *) calloc(1, MAXSTORYSIZE);
+		int fd = open("story.txt", O_RDONLY);
+		if(fd == -1) printf("Opening Error: %s\n", strerror(errno));
+		int readRes = read(fd, storyBuffer, MAXSTORYSIZE);
+		if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
+		int closeRes = close(fd);
+		if(closeRes == -1) printf("Closing Error: %s\n", strerror(errno));
+		//printf("length of story: %d\n", strlen(storyBuffer));
+    	printf("%s", storyBuffer);
+	}
 }
