@@ -32,10 +32,15 @@ int main (int argc, char *argv[])
 
 		struct sembuf sb;
 		sb.sem_num = 0;
-		sb.sem_flg = SEM_UNDO;
+		sb.sem_flg = 0;
 		sb.sem_op = 1;
 		int upRes = semop(semd, &sb, 1);
 		if(upRes == -1) printf("Failure in semd++: %s\n", strerror(errno));
+
+		//double check value
+		int val = semctl(semd, 0, GETVAL);
+		printf("Value of semaphore set to %d\n", val);
+		if(val == -1) printf("Error in setting semaphore: %s\n", strerror(errno));
 	}
 	else if(strcmp(argv[1], "-v") == 0)
 	{
