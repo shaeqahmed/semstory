@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
 	{
 		////////////make the text file////////////
 		int fd = open("story.txt", O_CREAT, 0664); //contains only the last line
-		printf("made file\n");
+		//printf("made file\n");
 		close(fd);
 
 		//create shared memory segment
