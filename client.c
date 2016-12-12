@@ -35,17 +35,13 @@ int main () {
 	int semd = semget(ftok("story.txt", 100), 1, 0664);
 	if(semd == -1) printf("Semaphore Access Error: %s\n", strerror(errno));
 
-	int allowed = semctl(semd, 0, GETVAL);
-	while(!allowed)
-	{
-		sleep(3);
-		allowed = semctl(semd, 0, GETVAL);
-	}
-
-	union semun valSetter;
-	valSetter.val = 0;
-	int res = semctl(semd, 0, SETVAL, valSetter);
-	if(res == -1) printf("Semaphore Value Setting Error: %s\n", strerror(errno));
+	//down semd
+	struct sembuf sb;
+	sb.sem_num = 0;
+	sb.sem_flg = SEM_UNDO;
+	sb.sem_op = -1;
+	int downRes = semop(semd, &sb, 1);
+	if(downRes == -1) printf("Failure in semd--: %s\n", strerror(errno));
 
 	////////////////2////////////////
 	int shmd = shmget(ftok("story.txt", 100), 4, 0664);
@@ -85,10 +81,10 @@ int main () {
 	close(storyFD);
 	shmdt(p);
 
-	//set value of semaphore
-	valSetter.val = 1;
-	res = semctl(semd, 0, SETVAL, valSetter);
-	if(res == -1) printf("Semaphore Value Setting Error: %s\n", strerror(errno));
+	//up semd
+	sb.sem_op = 1;
+	int upRes = semop(semd, &sb, 1);
+	if(upRes == -1) printf("Failure in semd++: %s\n", strerror(errno));
 
 	return 0;
 
