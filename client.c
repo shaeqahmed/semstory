@@ -35,6 +35,13 @@ int main () {
 	int semd = semget(ftok("story.txt", 100), 1, 0664);
 	if(semd == -1) printf("Semaphore Access Error: %s\n", strerror(errno));
 
+	int allowed = semctl(semd, 0, GETVAL);
+	while(!allowed)
+	{
+		sleep(3);
+		allowed = semctl(semd, 0, GETVAL);
+	}
+
 	union semun valSetter;
 	valSetter.val = 0;
 	int res = semctl(semd, 0, SETVAL, valSetter);
