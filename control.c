@@ -11,16 +11,6 @@
 
 #define MAXSTORYSIZE 3000
 
-/*
-union semun {
-               int              val;    //Value for SETVAL
-               struct semid_ds *buf;    //Buffer for IPC_STAT, IPC_SET
-               unsigned short  *array;  //Array for GETALL, SETALL
-               struct seminfo  *__buf;  //Buffer for IPC_INFO
-                                           //(Linux-specific)
-           };
-*/
-
 int main (int argc, char *argv[]) 
 {
 	//argc is assumed to be 1
@@ -40,15 +30,12 @@ int main (int argc, char *argv[])
 		int semd = semget(ftok("story.txt", 100), 1, IPC_CREAT | 0664);
 		if(semd == -1) printf("Semaphore Creation Error: %s\n", strerror(errno));
 
-		union semun valSetter;
-		valSetter.val = 1;
-		int res = semctl(semd, 0, SETVAL, valSetter);
-		if(res == -1) printf("Semaphore Value Setting Error: %s\n", strerror(errno));
-
-		//double check value
-		int newVal = semctl(semd, 0, GETVAL);
-		printf("value of semaphore set to %d\n", newVal);
-		if(newVal == -1) printf("Semaphore Value Getting Error: %s\n", strerror(errno));
+		struct sembuf sb;
+		sb.sem_num = 0;
+		sb.sem_flg = SEM_UNDO;
+		sb.sem_op = 1;
+		int upRes = semop(semd, &sb, 1);
+		if(upRes == -1) printf("Failure in semd++: %s\n", strerror(errno));
 	}
 	else if(strcmp(argv[1], "-v") == 0)
 	{
