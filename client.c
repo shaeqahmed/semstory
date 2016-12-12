@@ -8,19 +8,20 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
-
+/*
 union semun {
-               int              val;    /* Value for SETVAL */
-               struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-               unsigned short  *array;  /* Array for GETALL, SETALL */
-               struct seminfo  *__buf;  /* Buffer for IPC_INFO
-                                           (Linux-specific) */
+               int              val;    //Value for SETVAL
+               struct semid_ds *buf;    //Buffer for IPC_STAT, IPC_SET
+               unsigned short  *array;  //Array for GETALL, SETALL
+               struct seminfo  *__buf;  //Buffer for IPC_INFO
+                                           //(Linux-specific)
            };
+*/
 
 int main () {
 
 	/*
-	1. Open files, set semaphore to 0
+	1. Open files, check semaphore, set semaphore to 0
 	2. Open shared memory segment, get line size
 	3. Use lseek on story.txt, read the line into a char* which has the size from the shm segment. Print it 
 	4. Read line from input into a char*.
@@ -57,15 +58,15 @@ int main () {
 	int readRes = read(storyFD, lineBuffer, lineSize); if(readRes == -1) printf("Reading Error: %s\n", strerror(errno));
 	*(lineBuffer + lineSize) = 0;
 	if(strlen(lineBuffer)) printf("Previously Added Line: %s", lineBuffer);
-	else printf("Story Being Created\n");
+	else printf("Writing First Line\n");
 	//printf("Previously Added Line Size: %d\n", lineSize);
 	free(lineBuffer);
 	currentPos = lseek(storyFD, 0, SEEK_END); if(currentPos == -1) printf("Error setting position in story.txt: %s\n", strerror(errno));
 
 	////////////////4////////////////
 	char* nextLine = (char*) calloc(1, 52);
-	printf("Enter next line of story (at most 49 characters) > ");
-	fgets(nextLine, 51, stdin);
+	printf("Enter next line of story (at most 50 characters) > "); //51st character will be new line if 50 characters typed
+	fgets(nextLine, 52, stdin);
 	//printf("adding the line: %s", nextLine);
 
 	////////////////5////////////////
