@@ -21,7 +21,7 @@ int main () {
 	*/
 
 	////////////////1////////////////
-	int storyFD = open("story.txt", O_TRUNC);
+	int storyFD = open("story.txt", O_RDWR | O_APPEND);
 
 	int semd = semget(ftok("story.txt", 100), 1, 0664);
 	if(semd == -1) printf("Semaphore Access Error: %s\n", strerror(errno));

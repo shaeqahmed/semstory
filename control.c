@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
 	if(strcmp(argv[1], "-c") == 0)
 	{
 		////////////make the text file////////////
-		int fd = open("story.txt", O_CREAT, 0664); //contains only the last line
+		int fd = open("story.txt", O_TRUNC | O_CREAT, 0664); //contains only the last line
 		//printf("made file\n");
 		close(fd);
 
@@ -38,9 +38,9 @@ int main (int argc, char *argv[])
 		if(upRes == -1) printf("Failure in semd++: %s\n", strerror(errno));
 
 		//double check value
-		int val = semctl(semd, 0, GETVAL);
-		printf("Value of semaphore set to %d\n", val);
-		if(val == -1) printf("Error in setting semaphore: %s\n", strerror(errno));
+		//int val = semctl(semd, 0, GETVAL);
+		//printf("Value of semaphore set to %d\n", val);
+		//if(val == -1) printf("Error in setting semaphore: %s\n", strerror(errno));
 	}
 	else if(strcmp(argv[1], "-v") == 0)
 	{
